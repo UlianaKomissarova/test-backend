@@ -2,6 +2,7 @@ package mobi.sevenwinds.app.budget
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -23,17 +24,27 @@ object BudgetService {
         transaction {
             val query = BudgetTable
                 .select { BudgetTable.year eq param.year }
-                .limit(param.limit, param.offset)
+                .orderBy(BudgetTable.month to SortOrder.ASC)
+                .orderBy(BudgetTable.amount to SortOrder.DESC)
 
             val total = query.count()
-            val data = BudgetEntity.wrapRows(query).map { it.toResponse() }
 
-            val sumByType = data.groupBy { it.type.name }.mapValues { it.value.sumOf { v -> v.amount } }
+            val allItems = BudgetEntity
+                .wrapRows(query)
+                .map { it.toResponse() }
+
+            val sumByType = allItems
+                .groupBy { it.type.name }
+                .mapValues { it.value.sumOf { v -> v.amount } }
+
+            val paginatedItems = allItems
+                .drop(param.offset)
+                .take(param.limit)
 
             return@transaction BudgetYearStatsResponse(
                 total = total,
                 totalByType = sumByType,
-                items = data
+                items = paginatedItems
             )
         }
     }
