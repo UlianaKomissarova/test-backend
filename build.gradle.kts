@@ -42,6 +42,7 @@ dependencies {
     implementation("com.github.papsign:Ktor-OpenAPI-Generator:0.2-beta.20")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.8") // needed for multipart parsing
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.8") // needed for Optional<> parsing
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-joda:2.9.8")
     implementation("org.webjars:swagger-ui:3.25.0")
     implementation("org.reflections:reflections:0.9.11") // only used while initializing
 
